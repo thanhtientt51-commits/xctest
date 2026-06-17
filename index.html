@@ -1,344 +1,69 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>行测刷题 · AI错题解析</title>
 <style>
-:root{--bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--sub:#86868b;--accent:#5865f2;--accent2:#8b5cf6;--border:rgba(0,0,0,.06);--shadow-sm:0 1px 3px rgba(0,0,0,.04);--radius:16px;--green:#16a34a;--red:#dc2626}
+:root{--bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--sub:#86868b;--accent:#5865f2;--accent2:#8b5cf6;--border:rgba(0,0,0,.06);--radius:16px;--green:#16a34a;--red:#dc2626}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.5}
-.nav{position:sticky;top:0;z-index:100;background:rgba(245,245,247,.8);backdrop-filter:saturate(180%)blur(20px);border-bottom:1px solid var(--border);padding:0 24px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(245,245,247,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px}
 .nav-inner{max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px}
-.nav-logo{display:flex;align-items:center;gap:8px;font-size:.9em;font-weight:700}
-.nav-logo .icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85em}
-.nav-badge{font-size:.65em;padding:4px 12px;border-radius:20px;background:#fff;border:1px solid var(--border);color:var(--sub);display:flex;align-items:center;gap:5px}
-.main{max-width:1300px;margin:0 auto;padding:20px 24px 40px;display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
-
-/* Left panel */
-.sidebar{display:flex;flex-direction:column;gap:12px}
-.side-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:16px}
-.side-card h3{font-size:.75em;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--sub);margin-bottom:10px}
-.cat-item{padding:8px 12px;border-radius:10px;font-size:.8em;font-weight:600;cursor:pointer;transition:.2s;display:flex;justify-content:space-between;align-items:center;border:1px solid transparent}
-.cat-item:hover{background:#f0f4ff;color:var(--accent)}
-.cat-item.active{background:#f0f4ff;color:var(--accent);border-color:var(--accent)}
-.cat-item .count{font-size:.7em;color:var(--sub)}
-.wrong-list{max-height:300px;overflow-y:auto}
-.wrong-item{padding:8px 10px;border-radius:8px;font-size:.72em;margin-bottom:4px;background:#fef2f2;cursor:pointer;border-left:3px solid var(--red);transition:.2s}
-.wrong-item:hover{background:#fee2e2}
-.wrong-item .q{font-weight:600;margin-bottom:2px}
-.wrong-item .meta{font-size:.85em;color:var(--sub)}
-
-/* Right panel */
-.main-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:28px;min-height:500px}
-.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.q-meta{font-size:.7em;color:var(--sub)}
-.q-type-badge{padding:3px 10px;border-radius:8px;font-size:.65em;font-weight:600;background:#f0f4ff;color:var(--accent)}
+.nav-badge{font-size:.65em;padding:4px 12px;border-radius:20px;background:#fff;border:1px solid var(--border);color:var(--sub)}
+.main{max-width:1300px;margin:0 auto;padding:20px 24px 40px;display:grid;grid-template-columns:300px 1fr;gap:20px}
+.side-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px;margin-bottom:12px}
+.side-card h3{font-size:.75em;font-weight:700;letter-spacing:1px;color:var(--sub);margin-bottom:10px}
+.cat-item{padding:8px 12px;border-radius:10px;font-size:.8em;font-weight:600;cursor:pointer;transition:.2s;border:1px solid transparent;margin-bottom:2px}
+.cat-item:hover{background:#f0f4ff}.cat-item.active{background:#f0f4ff;color:var(--accent);border-color:var(--accent)}
+.wrong-item{padding:8px 10px;border-radius:8px;font-size:.72em;margin-bottom:4px;background:#fef2f2;cursor:pointer;border-left:3px solid var(--red)}
+.main-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:28px;min-height:400px}
 .q-text{font-size:1em;line-height:1.8;margin-bottom:20px;font-weight:500}
-.options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
-.opt{padding:14px 18px;border:2px solid var(--border);border-radius:12px;font-size:.9em;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:10px}
-.opt:hover{border-color:var(--accent)}
-.opt.selected{border-color:var(--accent);background:#f0f4ff}
-.opt.correct{border-color:var(--green);background:#f0fdf4}
-.opt.wrong{border-color:var(--red);background:#fef2f2}
-.opt.disabled{pointer-events:none;opacity:.7}
+.opt{padding:14px 18px;border:2px solid var(--border);border-radius:12px;font-size:.9em;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.opt:hover{border-color:var(--accent)}.opt.selected{border-color:var(--accent);background:#f0f4ff}
+.opt.correct{border-color:var(--green);background:#f0fdf4}.opt.wrong{border-color:var(--red);background:#fef2f2}
 .opt .letter{width:28px;height:28px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85em;flex-shrink:0}
-.opt.selected .letter{background:var(--accent);color:#fff}
-.opt.correct .letter{background:var(--green);color:#fff}
-.opt.wrong .letter{background:var(--red);color:#fff}
-
-.btn-row{display:flex;gap:10px;flex-wrap:wrap}
-.btn{padding:10px 22px;border-radius:22px;font-size:.84em;font-weight:700;cursor:pointer;border:0;transition:.25s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 14px rgba(88,101,242,.25)}
-.btn-primary:hover{transform:translateY(-1px)}
-.btn-primary:disabled{opacity:.4;transform:none}
-.btn-ghost{background:#fff;border:1px solid var(--border);color:var(--sub)}
-.btn-ghost:hover{border-color:var(--accent);color:var(--text)}
-
-.explain-box{margin-top:20px;padding:20px;background:#fafafa;border-radius:12px;border:1px solid var(--border);display:none;font-size:.82em;line-height:1.8}
-.explain-box.show{display:block;animation:fadeUp .3s ease}
-.explain-box h4{font-size:.9em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.explain-box .ai-label{font-size:.65em;color:var(--sub)}
-.explain-box .xhs-style{color:#444}
-.xhs-style strong{color:var(--accent);font-size:1.05em}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.score-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
-.score-item{font-size:.75em;color:var(--sub);background:#f9f9fb;padding:4px 12px;border-radius:8px}
-
-.empty{padding:60px 20px;text-align:center;color:var(--sub);font-size:.85em}
-.footer{text-align:center;padding:30px;color:#b0b0b8;font-size:.65em;border-top:1px solid var(--border)}
-
+.opt.selected .letter{background:var(--accent);color:#fff}.opt.correct .letter{background:var(--green);color:#fff}.opt.wrong .letter{background:var(--red);color:#fff}
+.btn{padding:10px 22px;border-radius:22px;font-size:.84em;font-weight:700;cursor:pointer;border:0;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-ghost{background:#fff;border:1px solid var(--border);color:var(--sub)}.btn-ghost:hover{border-color:var(--accent);color:var(--text)}
+.explain-box{margin-top:20px;padding:20px;background:#fafafa;border-radius:12px;display:none;font-size:.82em;line-height:1.8}
+.explain-box.show{display:block}.footer{text-align:center;padding:30px;color:#b0b0b8;font-size:.65em}
 @media(max-width:900px){.main{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-
-<nav class="nav">
-  <div class="nav-inner">
-    <div class="nav-logo"><div class="icon">📝</div>行测刷题 · AI错题解析</div>
-    <div class="nav-badge">花生十三风格 · DeepSeek驱动</div>
-  </div>
-</nav>
-
+</style></head><body>
+<nav class="nav"><div class="nav-inner"><div style="font-size:.9em;font-weight:700">📝 行测刷题 · AI错题解析</div><div class="nav-badge">花生十三+DeepSeek双解析</div></div></nav>
 <div class="main">
-  <!-- Left -->
-  <div class="sidebar">
-    <div class="side-card">
-      <h3>五大模块</h3>
-      <div class="cat-item active" data-cat="判断推理" onclick="switchCat('判断推理',this)">判断推理 <span class="count" id="cnt1">0</span></div>
-      <div class="cat-item" data-cat="言语理解" onclick="switchCat('言语理解',this)">言语理解 <span class="count" id="cnt2">0</span></div>
-      <div class="cat-item" data-cat="数量关系" onclick="switchCat('数量关系',this)">数量关系 <span class="count" id="cnt3">0</span></div>
-      <div class="cat-item" data-cat="资料分析" onclick="switchCat('资料分析',this)">资料分析 <span class="count" id="cnt4">0</span></div>
-      <div class="cat-item" data-cat="常识判断" onclick="switchCat('常识判断',this)">常识判断 <span class="count" id="cnt5">0</span></div>
-    </div>
-    <div class="side-card">
-      <h3>📊 统计</h3>
-      <div class="score-row">
-        <div class="score-item">正确：<strong id="correctCount">0</strong></div>
-        <div class="score-item">错误：<strong id="wrongCount">0</strong></div>
-        <div class="score-item">正确率：<strong id="rate">-</strong></div>
-      </div>
-    </div>
-    <div class="side-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <h3 style="margin-bottom:0">错题本</h3>
-        <button class="btn btn-ghost" style="font-size:.65em;padding:4px 10px" onclick="exportWrong()">📥 导出Word</button>
-      </div>
-      <div class="wrong-list" id="wrongList"><div class="empty" style="font-size:.7em;padding:20px">暂无错题</div></div>
-    </div>
+<div>
+  <div class="side-card"><h3>五大模块</h3>
+    <div class="cat-item active" onclick="pick('判断推理',this)">判断推理</div>
+    <div class="cat-item" onclick="pick('言语理解',this)">言语理解</div>
+    <div class="cat-item" onclick="pick('数量关系',this)">数量关系</div>
+    <div class="cat-item" onclick="pick('资料分析',this)">资料分析</div>
+    <div class="cat-item" onclick="pick('常识判断',this)">常识判断</div>
   </div>
-
-  <!-- Right -->
-  <div>
-    <div class="main-card" id="questionArea">
-      <div class="q-header">
-        <div class="q-meta"><span class="q-type-badge" id="qType">判断推理</span> &nbsp; 第 <span id="qNum">1</span> 题</div>
-        <button class="btn btn-ghost" style="font-size:.7em;padding:4px 12px" onclick="nextQuestion()">下一题 →</button>
-      </div>
-      <div class="q-text" id="qText">点击左侧模块开始刷题</div>
-      <div class="options" id="options"></div>
-      <div class="btn-row">
-        <button class="btn btn-primary" id="btnSubmit" onclick="submitAnswer()" disabled>提交答案</button>
-        <button class="btn btn-ghost" onclick="nextQuestion()">换一题</button>
-      </div>
-      <div class="explain-box" id="explainBox">
-        <h4>🥜 花生十三 · 口诀解析</h4>
-        <div class="xhs-style" id="huashengContent" style="border-left:3px solid var(--accent);padding-left:14px;margin-bottom:16px"></div><h4 style="margin-top:16px">🤖 DeepSeek · 深度解析</h4><div class="xhs-style" id="detailContent" style="color:#555"></div>
-      </div>
-    </div>
+  <div class="side-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin-bottom:0">错题本</h3><button class="btn btn-ghost" style="font-size:.65em;padding:4px 10px" onclick="exportWrong()">导出Word</button></div>
+    <div id="wrongList" style="max-height:300px;overflow-y:auto"><div style="font-size:.7em;padding:20px;text-align:center;color:var(--sub)">暂无错题</div></div>
   </div>
 </div>
-
-<footer class="footer">AI解析由DeepSeek驱动 · 花生十三解题方法论 · 仅供练习参考 </footer>
-
+<div>
+  <div class="main-card">
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px"><span style="font-size:.7em;color:var(--sub)" id="qType">判断推理</span><button class="btn btn-ghost" style="font-size:.7em;padding:4px 12px" onclick="next()">下一题</button></div>
+    <div class="q-text" id="qText">加载中...</div>
+    <div id="opts"></div>
+    <div style="display:flex;gap:10px;margin-top:10px"><button class="btn btn-primary" id="btnSub" onclick="submit()" disabled>提交答案</button><button class="btn btn-ghost" onclick="next()">换一题</button></div>
+    <div class="explain-box" id="explain"><h4>🥜 花生十三 · 口诀</h4><div style="border-left:3px solid var(--accent);padding-left:14px;margin-bottom:16px;line-height:1.8" id="hsBox"></div><h4>🤖 DeepSeek · 详解</h4><div style="line-height:1.8;color:#555" id="dsBox"></div></div>
+  </div>
+</div>
+</div>
+<footer class="footer">AI解析由DeepSeek驱动 · 仅供练习参考</footer>
 <script>
-// ============ 题库 ============
-var BANK = {'判断推理': [
-    {q:'从所给的四个选项中，选择最合适的一个填入问号处，使之呈现一定的规律性：2, 4, 8, 16, 32, ?',o:['48','56','64','72'],a:2},
-    {q:'所有的鸟都会飞。企鹅是鸟。所以企鹅会飞。以下哪项与上述推理的错误相同？',o:['所有鱼都生活在水里。鲸鱼是鱼。所以鲸鱼生活在水里','所有学生都要考试。小明不是学生。所以小明不用考试','所有花都需要阳光。向日葵是花。所以向日葵需要阳光','所有动物都需要氧气。猫是动物。所以猫需要氧气'],a:0},
-    {q:'甲、乙、丙三人中只有一人会游泳。甲说：我会。乙说：我不会。丙说：甲不会。如果三人中只有一人说了真话，那么会游泳的是？',o:['甲','乙','丙','无法确定'],a:1},
-    {q:'所有A都是B，有些C不是B。由此可以推出？',o:['有些C不是A','所有A都是C','有些C是A','无法确定'],a:3},
-  ,{q:"三角形面积比等于底边长度比，正方体体积比等于棱长比的立方。与此类推关系相同的是？",o:["圆形面积比等于半径比的平方","圆柱体积比等于高度比的平方","球体积比等于半径比的立方","长方体体积比等于底面积比"],a:2},{q:"虽然岁数还年轻，但容貌先老了。下列哪项与此逻辑关系相同？",o:["人无远虑必有近忧","虽然个子不高但球技很好","虽然工资不高但工作轻松","虽然路程不远但交通拥堵"],a:0},{q:"M市成年人总能量代谢水平近年来呈下降趋势。由此推出静息代谢水平也呈下降趋势。最能支持该推论的是？",o:["成年人平均体重增加导致代谢下降","成年人开始重视锻炼，活动能量消耗增加","饮食结构变化导致能量摄入减少","年龄增长自然导致代谢下降"],a:1},{q:"翠竹∶高洁。下列哪项与题干逻辑关系相同？",o:["牡丹∶华贵","青松∶挺拔","梅花∶傲骨","菊花∶隐逸"],a:0},{q:"花草∶植物。下列哪项与题干逻辑关系相同？",o:["森林∶树木","牛羊∶家畜","河流∶海洋","矿石∶金属"],a:1},{q:"丝∶编制∶花边。下列哪项与此逻辑关系最相似？",o:["毛笔∶绘画∶国画","竹子∶雕刻∶竹雕","石子∶铺设∶路面","面粉∶蒸制∶馒头"],a:1},{q:"碎片式学习指通过零散时间进行的非系统性学习。下列属于碎片式学习的是？",o:["每天花一小时系统学习英语","利用通勤时间听知识类播客","参加为期三个月的培训班","周末集中阅读专业书籍"],a:1},{q:"约拿情结指人在面对成功机会时产生的逃避心理。下列属于约拿情结的是？",o:["主动争取晋升机会","害怕演讲而拒绝主持会议","为了考试通宵复习","积极报名参加比赛"],a:1}],
-  '言语理解': [
-    {q:'填入划横线部分最恰当的一项是：中国传统文化中的"和而不同"思想，___了中华文明海纳百川的博大胸怀。',o:['体现','表现','展现','显示'],a:0},
-    {q:'下列句子中，没有语病的一项是：',o:['通过这次学习，使我提高了认识','他的写作水平有了明显的提高','我们认真研究听取了大家的意见','能否刻苦钻研是取得好成绩的关键'],a:1},
-    {q:'这段文字的主要观点是：随着互联网技术的发展，人们获取信息的方式发生了根本性的变化，但这种变化也带来了信息过载和注意力碎片化的问题。',o:['互联网技术利大于弊','信息获取方式发生了根本变化且存在问题','人们应该减少使用互联网','注意力碎片化是最严重的问题'],a:1},
-  ,{q:"当古籍遇上高科技，千年文明以数字化的方式重新呈现在世人面前。这段文字意在说明？",o:["古籍数字化需要大量资金投入","借助科技手段能更好传播传统文化","数字化是保护古籍的唯一方法","古籍应该被妥善保管"],a:1},{q:"改革开放以来加速工业化消耗大量资源，粗放发展方式未彻底扭转。这段文字意在强调？",o:["工业化必然导致资源消耗","改革开放带来了环境问题","新发展阶段需科学配置高效利用资源","应该停止工业化进程"],a:2},{q:"填入横线最恰当的是：水污染形势严峻，治理工作已是___，必须拿出壮士断腕的决心。",o:["骑虎难下","轻而易举","无关紧要","一帆风顺"],a:0},{q:"填入横线最恰当的：统计机构改革___了数据治理能力的提升，为宏观决策提供了___支撑。",o:["推动、有力","阻碍、一定","忽视、充分","延迟、部分"],a:0},{q:"保障性住房监管的目的是确保住房资源___到真正需要的人手中，避免___和滥用。",o:["分配、浪费","集中、使用","转移、申请","流动、分配"],a:0},{q:"雁鹅的\"同种竞争\"现象说明，同类之间的竞争往往比不同类之间的竞争更加___。",o:["温和","激烈","有序","缓慢"],a:1}],
-  '数量关系': [
-    {q:'一项工程，甲单独做需要10天，乙单独做需要15天。两人合作需要多少天？',o:['5天','6天','7天','8天'],a:1},
-    {q:'某商品原价200元，先涨价20%，再打八折。最终价格是多少？',o:['160元','176元','192元','200元'],a:2},
-    {q:'一个长方形水池，长宽比为3:2，面积为54平方米。周长是多少米？',o:['24','30','36','42'],a:1},
-  ,{q:"某企业招聘3名博士生、3名硕士生、3名本科生。如果生产部录用本科生则研发部录用硕士生；如果研发部录用博士生则生产部录用博士生。由此可推出？",o:["生产部一定录用博士生","研发部一定录用硕士生","如果研发不录用硕士生则生产不录用本科生","财务部一定录用本科生"],a:2},{q:"数列：2,4,12,48,240,？。问号处应为？",o:["720","960","1440","2880"],a:2},{q:"在一次考试中，5名学生的分数分别为65、72、78、85、？，平均分为75。缺失的分数是多少？",o:["70","73","75","80"],a:2}],
-  '资料分析': [
-    {q:'2019年某省GDP为4.8万亿元，2020年增长7.5%，2021年增长6.8%。2021年该省GDP约为多少万亿元？',o:['5.2','5.5','5.8','6.1'],a:1},
-    {q:'某市2020年常住人口为820万人，城镇化率为65%。该市城镇人口约为多少万人？',o:['490','510','533','548'],a:2},
-  ,{q:"2023年某省规模以上工业增加值增长6.8%，其中制造业增长7.2%，采矿业增长2.1%。制造业对工业增加值增长的贡献率约为？",o:["75%","82%","88%","92%"],a:1},{q:"2023年全国居民人均可支配收入39218元，实际增长6.1%。城镇居民人均可支配收入51821元，农村居民人均可支配收入21691元。城乡收入比为？",o:["2.09","2.19","2.39","2.59"],a:2}],
-  '常识判断': [
-    {q:'下列不属于我国宪法规定的公民基本权利的是？',o:['平等权','选举权和被选举权','罢工权','受教育权'],a:2},
-    {q:'2023年8月，我国在哪个卫星发射中心用长征四号丙运载火箭成功发射了高分十二号04星？',o:['西昌','酒泉','太原','文昌'],a:1},
-    {q:'下列哪项属于行政处罚？',o:['记过','罚款','降级','撤职'],a:1},
-    {q:'战国时期"百家争鸣"中，主张"兼爱""非攻"的思想家是？',o:['孔子','孟子','墨子','荀子'],a:2},
-  ,{q:"下列关于个人碳账户的说法正确的是？",o:["主要用于企业碳排放交易","引导人们在日常生活中采取低碳行动","是强制性的碳排放配额制度","仅适用于交通出行领域"],a:1},{q:"改革开放以来我国加速工业化进程，关于新型工业化的表述正确的是？",o:["新型工业化就是完全放弃传统工业","新型工业化强调科技含量高、经济效益好、资源消耗低、环境污染少","新型工业化只需要发展高新技术产业","新型工业化与信息化无关"],a:1},{q:"党的二十大报告指出，新时代十年我们经历了对党和人民事业具有重大现实意义和深远历史意义的三件大事。下列不属于这三件大事的是？",o:["迎来中国共产党成立一百周年","中国特色社会主义进入新时代","完成脱贫攻坚全面建成小康社会的历史任务","实现中华民族伟大复兴的中国梦"],a:2},{q:"下列关于神舟十五号航天员的表述正确的是？",o:["首次包含女航天员","首次进行太空授课","首次在轨轮换","首次出舱活动"],a:2},{q:"中华文明探源工程证实了中华文明具有多少年的历史？",o:["三千多年","四千多年","五千多年","六千多年"],a:2},{q:"醉酒驾驶营运机动车发生重大交通事故构成犯罪的，公安机关交通管理部门将？",o:["吊销机动车驾驶证五年","吊销机动车驾驶证十年","吊销机动车驾驶证且终身不得重新取得","暂扣机动车驾驶证六个月"],a:2}]
-};
-
-// Make sure each question has correct answer index
-for (var k in BANK) {
-  BANK[k].forEach(function(q, i) {
-    if (typeof q.a !== 'number' || q.a < 0 || q.a >= q.o.length) {
-      console.error('Invalid answer for ' + k + ' Q' + (i+1));
-    }
-  });
-}
-
-// Update counts
-for (var i = 1; i <= 5; i++) {
-  var cats = ['判断推理','言语理解','数量关系','资料分析','常识判断'];
-  var el = document.getElementById('cnt' + i);
-  if (el) el.textContent = BANK[cats[i-1]].length + '题';
-}
-
-var currentCat = '判断推理';
-var currentQ = null;
-var selectedOpt = -1;
-var answered = false;
-var correctTotal = parseInt(localStorage.getItem('xc_correct') || '0');
-var wrongTotal = parseInt(localStorage.getItem('xc_wrong') || '0');
-var wrongList = JSON.parse(localStorage.getItem('xc_wrongList') || '[]');
-updateStats();
-renderWrongList();
-
-function switchCat(cat, el) {
-  currentCat = cat;
-  document.querySelectorAll('.cat-item').forEach(function(b) { b.classList.remove('active'); });
-  el.classList.add('active');
-  nextQuestion();
-}
-
-function nextQuestion() {
-  var pool = BANK[currentCat];
-  if (!pool || !pool.length) return;
-  currentQ = pool[Math.floor(Math.random() * pool.length)];
-  selectedOpt = -1;
-  answered = false;
-
-  document.getElementById('qType').textContent = currentCat;
-  document.getElementById('qNum').textContent = pool.indexOf(currentQ) + 1;
-  document.getElementById('qText').textContent = currentQ.q;
-  document.getElementById('btnSubmit').disabled = false;
-  document.getElementById('btnSubmit').textContent = '提交答案';
-  document.getElementById('explainBox').classList.remove('show');
-
-  var optsHtml = '';
-  var letters = ['A','B','C','D'];
-  currentQ.o.forEach(function(o, i) {
-    optsHtml += '<div class="opt" onclick="selectOpt(' + i + ',this)"><span class="letter">' + letters[i] + '</span>' + o + '</div>';
-  });
-  document.getElementById('options').innerHTML = optsHtml;
-}
-
-function selectOpt(i, el) {
-  if (answered) return;
-  selectedOpt = i;
-  document.querySelectorAll('.opt').forEach(function(o) { o.classList.remove('selected'); });
-  el.classList.add('selected');
-}
-
-function submitAnswer() {
-  if (selectedOpt === -1) { alert('请先选择一个选项'); return; }
-  if (answered) return;
-  answered = true;
-  document.getElementById('btnSubmit').disabled = true;
-
-  var isCorrect = selectedOpt === currentQ.a;
-  var letters = ['A','B','C','D'];
-
-  // Highlight correct/wrong
-  document.querySelectorAll('.opt').forEach(function(o, i) {
-    o.classList.add('disabled');
-    if (i === currentQ.a) o.classList.add('correct');
-    if (i === selectedOpt && !isCorrect) o.classList.add('wrong');
-  });
-
-  if (isCorrect) {
-    correctTotal++;
-    document.getElementById('btnSubmit').textContent = '✅ 回答正确';
-    document.getElementById('btnSubmit').style.background = '#16a34a';
-    setTimeout(function() { document.getElementById('btnSubmit').style.background = ''; }, 2000);
-  } else {
-    wrongTotal++;
-    document.getElementById('btnSubmit').textContent = '❌ 回答错误';
-    document.getElementById('btnSubmit').style.background = '#dc2626';
-    setTimeout(function() { document.getElementById('btnSubmit').style.background = ''; }, 2000);
-
-    // Save to wrong list
-    wrongList.unshift({cat: currentCat, q: currentQ.q, o: currentQ.o, a: currentQ.a, my: selectedOpt, time: new Date().toISOString()});
-    if (wrongList.length > 50) wrongList = wrongList.slice(0, 50);
-    localStorage.setItem('xc_wrongList', JSON.stringify(wrongList));
-    renderWrongList();
-
-    // Get AI explanation
-    getExplanation();
-  }
-
-  localStorage.setItem('xc_correct', correctTotal);
-  localStorage.setItem('xc_wrong', wrongTotal);
-  updateStats();
-}
-
-function updateStats() {
-  document.getElementById('correctCount').textContent = correctTotal;
-  document.getElementById('wrongCount').textContent = wrongTotal;
-  var total = correctTotal + wrongTotal;
-  document.getElementById('rate').textContent = total > 0 ? (correctTotal / total * 100).toFixed(0) + '%' : '-';
-}
-
-function renderWrongList() {
-  var el = document.getElementById('wrongList');
-  if (!wrongList.length) { el.innerHTML = '<div class="empty" style="font-size:.7em;padding:20px">暂无错题</div>'; return; }
-  el.innerHTML = wrongList.map(function(w, i) {
-    return '<div class="wrong-item" onclick="reviewWrong(' + i + ')"><div class="q">' + w.q.substring(0, 30) + '...</div><div class="meta">' + w.cat + ' · 你的答案：' + ['A','B','C','D'][w.my] + ' → 正确：' + ['A','B','C','D'][w.a] + '</div></div>';
-  }).join('');
-}
-
-function reviewWrong(i) {
-  var w = wrongList[i];
-  currentQ = { q: w.q, o: w.o, a: w.a };
-  selectedOpt = w.my;
-  answered = true;
-  currentCat = w.cat;
-
-  document.getElementById('qType').textContent = w.cat + ' (错题回顾)';
-  document.getElementById('qText').textContent = w.q;
-  document.getElementById('btnSubmit').disabled = true;
-  document.getElementById('btnSubmit').textContent = ['A','B','C','D'][w.my] + ' → ' + ['A','B','C','D'][w.a];
-  document.getElementById('explainBox').classList.remove('show');
-
-  var letters = ['A','B','C','D'];
-  document.getElementById('options').innerHTML = w.o.map(function(o, j) {
-    var cls = j === w.a ? 'correct' : (j === w.my ? 'wrong' : '');
-    return '<div class="opt disabled ' + cls + '"><span class="letter">' + letters[j] + '</span>' + o + '</div>';
-  }).join('');
-}
-
-async function getExplanation() {
-  var box = document.getElementById('explainBox');
-  var hsContent = document.getElementById('huashengContent');
-  var detailContent = document.getElementById('detailContent');
-  box.classList.add('show');
-  hsContent.innerHTML = '花生十三分析中...';
-  detailContent.innerHTML = 'DeepSeek深度解析中...';
-
-  var l = ['A','B','C','D'];
-  var qInfo = '题型：'+currentCat+'。题目：'+currentQ.q+'。选项：'+currentQ.o.map(function(o,i){return l[i]+'.'+o}).join(' | ')+'。正确答案：'+l[currentQ.a]+'。我的答案：'+l[selectedOpt];
-
-  try {
-    var API='https://api.deepseek.com/chat/completions';
-    var KEY='sk-0541b3112cd44ec18041c235d380affc';
-    var H={'Content-Type':'application/json','Authorization':'Bearer '+KEY};
-
-    var r1=await fetch(API,{method:'POST',headers:H,body:JSON.stringify({model:'deepseek-chat',messages:[{role:'user',content:'你是花生十三，行测名师。极简口诀式讲题，150字内。'+qInfo}],max_tokens:300,temperature:.5})});
-    var d1=await r1.json();hsContent.innerHTML=(d1.choices[0].message.content||'').replace(/\n/g,'<br>');
-
-    var r2=await fetch(API,{method:'POST',headers:H,body:JSON.stringify({model:'deepseek-chat',messages:[{role:'user',content:'你是行测教研老师。做深度错题解析，300字内。考点分析、正确为什么对、错误为什么错（逐一排除）、解题步骤、通用解法。'+qInfo}],max_tokens:800,temperature:.7})});
-    var d2=await r2.json();detailContent.innerHTML=(d2.choices[0].message.content||'').replace(/\n/g,'<br>');
-  } catch(e) { hsContent.innerHTML='解析失败'; detailContent.innerHTML='请重试'; }
-}
-
-function exportWrong()function exportWrong() {
-  if (!wrongList.length) { alert('暂无错题可导出'); return; }
-  var html = '<html><head><meta charset="UTF-8"><style>body{font-family:SimSun;font-size:14px;line-height:1.8;padding:20px}h2{text-align:center}li{padding:8px 0;border-bottom:1px solid #eee}</style></head><body><h2>行测错题本</h2><ol>';
-  wrongList.forEach(function(w, i) {
-    html += '<li><strong>[' + w.cat + ']</strong> ' + w.q + '<br>你的答案：<b style="color:red">' + ['A','B','C','D'][w.my] + '</b> &nbsp; 正确答案：<b style="color:green">' + ['A','B','C','D'][w.a] + '</b><br>选项：' + w.o.map(function(o,j){return ['A','B','C','D'][j]+'.'+o}).join('；') + '</li>';
-  });
-  html += '</ol><p style="text-align:center;color:#999;margin-top:30px">导出时间：' + new Date().toLocaleString() + '</p></body></html>';
-  var blob = new Blob([html], {type:'application/msword'});
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '行测错题本.doc'; a.click();
-}
-
-// Init
-nextQuestion();
-</script>
-
-</body>
-</html>
+var B={"判断推理":[{q:"2,4,8,16,32,?",o:["48","56","64","72"],a:2},{q:"所有鸟都会飞，企鹅是鸟，所以企鹅会飞。哪项与此推理错误相同?",o:["所有鱼生活在水里，鲸鱼是鱼，所以鲸鱼生活在水里","所有学生考试，小明不是学生，所以小明不用考试","所有花需要阳光，向日葵是花，所以向日葵需要阳光","所有动物需氧气，猫是动物，所以猫需氧气"],a:0},{q:"甲乙丙只有一人会游泳。甲:我会。乙:我不会。丙:甲不会。只有一人说真话，谁会?",o:["甲","乙","丙","无法确定"],a:1},{q:"翠竹:高洁。哪项与此逻辑关系相同?",o:["牡丹:华贵","青松:挺拔","梅花:傲骨","菊花:隐逸"],a:0},{q:"花草:植物。哪项与此逻辑关系相同?",o:["森林:树木","牛羊:家畜","河流:海洋","矿石:金属"],a:1},{q:"丝:编制:花边。哪项与此最相似?",o:["毛笔:绘画:国画","竹子:雕刻:竹雕","石子:铺设:路面","面粉:蒸制:馒头"],a:1},{q:"如果录用本科生则研发部录用硕士生。由此可推出?",o:["生产部一定录用博士生","如果研发不录用硕士生则不录用本科生","研发部一定录用硕士生","无法推出"],a:1}],"言语理解":[{q:"和而不同思想___了中华文明海纳百川的博大胸怀。",o:["体现","表现","展现","显示"],a:0},{q:"下列没有语病的一项是?",o:["通过这次学习使我提高了认识","他的写作水平有了明显提高","我们认真研究听取了大家的意见","能否刻苦钻研是取得好成绩的关键"],a:1},{q:"互联网改变了信息获取方式但也带来信息过载。主要观点是?",o:["互联网利大于弊","信息获取方式变了且存在问题","人们应减少使用互联网","注意力碎片化最严重"],a:1},{q:"下列句子排列最恰当的是:①不利于产业结构调整②制约可持续发展③粗放型增长带来短期繁荣④长远看不可持续",o:["③①④②","③④①②","④①②③","④③②①"],a:1},{q:"古籍遇上高科技千年文明数字化重现。意在说明?",o:["古籍数字化需大量资金","借助科技更好传播传统文化","数字化是唯一保护方法","古籍应妥善保管"],a:1}],"数量关系":[{q:"甲单独10天乙单独15天合作需多少天?",o:["5天","6天","7天","8天"],a:1},{q:"原价200元涨20%再打八折。最终价格?",o:["160元","176元","192元","200元"],a:2},{q:"长宽比3:2面积54平方米周长?",o:["24","30","36","42"],a:1},{q:"2,4,12,48,240,?",o:["720","960","1440","2880"],a:2},{q:"甲12天乙18天甲先做3天乙还需几天?",o:["10.5","12","13.5","15"],a:2}],"资料分析":[{q:"2019年GDP4.8万亿2020增7.5%2021增6.8%。2021年GDP?",o:["5.2万亿","5.5万亿","5.8万亿","6.1万亿"],a:1},{q:"2020年人口820万城镇化率65%。城镇人口?",o:["490万","510万","533万","548万"],a:2},{q:"2020进出口4800亿出口占55%2021出口增12%进口增8%总额增长?",o:["9.8%","10.2%","10.6%","11.0%"],a:1},{q:"2022年GDP5600亿增6.5%2021增5.8%。2020年GDP约?",o:["4700亿","4800亿","4960亿","5100亿"],a:2}],"常识判断":[{q:"不属于宪法规定公民基本权利的是?",o:["平等权","选举权和被选举权","罢工权","受教育权"],a:2},{q:"高分十二号04星发射中心?",o:["西昌","酒泉","太原","文昌"],a:1},{q:"哪项属于行政处罚?",o:["记过","罚款","降级","撤职"],a:1},{q:"主张兼爱非攻的思想家是?",o:["孔子","孟子","墨子","荀子"],a:2},{q:"关于我国宪法表述正确的是?",o:["修正案需半数通过","人大常委会有权修宪","国家主席有权公布法律","国务院可撤销地方政府不适当决定"],a:3}]};
+var cat="判断推理",q=null,sel=-1,ans=false,cor=0,wro=0,wrongList=JSON.parse(localStorage.getItem("xcr_wrong")||"[]");
+function pick(c,el){cat=c;document.querySelectorAll(".cat-item").forEach(function(b){b.classList.remove("active")});el.classList.add("active");next()}
+function next(){var p=B[cat];if(!p){document.getElementById("qText").textContent="暂无题目";return}q=p[Math.floor(Math.random()*p.length)];sel=-1;ans=false;document.getElementById("qType").textContent=cat;document.getElementById("qText").textContent=q.q;document.getElementById("btnSub").disabled=false;document.getElementById("btnSub").textContent="提交答案";document.getElementById("explain").classList.remove("show");var h="",l=["A","B","C","D"];q.o.forEach(function(o,i){h+='<div class="opt" onclick="selOpt('+i+',this)"><span class="letter">'+l[i]+'</span>'+o+"</div>"});document.getElementById("opts").innerHTML=h}
+function selOpt(i,el){if(ans)return;sel=i;document.querySelectorAll(".opt").forEach(function(o){o.classList.remove("selected")});el.classList.add("selected")}
+function submit(){if(sel===-1){alert("请先选择一个选项");return}if(ans)return;ans=true;document.getElementById("btnSub").disabled=true;var l=["A","B","C","D"],ok=sel===q.a;document.querySelectorAll(".opt").forEach(function(o,i){o.style.pointerEvents="none";if(i===q.a)o.classList.add("correct");if(i===sel&&!ok)o.classList.add("wrong")});if(ok){cor++;document.getElementById("btnSub").textContent="正确"}else{wro++;document.getElementById("btnSub").textContent="错误";wrongList.unshift({cat:cat,q:q.q,o:q.o,a:q.a,my:sel});if(wrongList.length>50)wrongList=wrongList.slice(0,50);localStorage.setItem("xcr_wrong",JSON.stringify(wrongList));renderWrong();getAI()}localStorage.setItem("xcr_correct",cor);localStorage.setItem("xcr_wrong",wro)}
+async function getAI(){var box=document.getElementById("explain"),hs=document.getElementById("hsBox"),ds=document.getElementById("dsBox");box.classList.add("show");hs.innerHTML="分析中...";ds.innerHTML="分析中...";var l=["A","B","C","D"],info="题型:"+cat+"。题目:"+q.q+"。选项:"+q.o.map(function(o,i){return l[i]+"."+o}).join(" | ")+"。正确答案:"+l[q.a]+"。我的答案:"+l[sel];try{var hd={"Content-Type":"application/json",Authorization:"Bearer sk-0541b3112cd44ec18041c235d380affc"},url="https://api.deepseek.com/chat/completions";var r1=await fetch(url,{method:"POST",headers:hd,body:JSON.stringify({model:"deepseek-chat",messages:[{role:"user",content:"你是花生十三行测名师极简口诀式讲题一针见血100字内。"+info}],max_tokens:200,temperature:.5})});var d1=await r1.json();hs.innerHTML=(d1.choices[0].message.content||"").replace(/\n/g,"<br>");var r2=await fetch(url,{method:"POST",headers:hd,body:JSON.stringify({model:"deepseek-chat",messages:[{role:"user",content:"你是行测教研老师做深度错题解析250字内考点分析正确为什么对错误逐一排除解题步骤通用解法。"+info}],max_tokens:600,temperature:.7})});var d2=await r2.json();ds.innerHTML=(d2.choices[0].message.content||"").replace(/\n/g,"<br>")}catch(e){hs.innerHTML="解析失败";ds.innerHTML="请重试"}}
+function renderWrong(){var el=document.getElementById("wrongList");if(!wrongList.length){el.innerHTML='<div style="font-size:.7em;padding:20px;text-align:center;color:var(--sub)">暂无错题</div>';return}el.innerHTML=wrongList.map(function(w,i){return'<div class="wrong-item" onclick="review('+i+')">'+w.q.substring(0,30)+'...<br><span style="font-size:.8em;color:var(--sub)">'+w.cat+" | 你的:"+["A","B","C","D"][w.my]+" 正确:"+["A","B","C","D"][w.a]+"</span></div>"}).join("")}
+function review(i){var w=wrongList[i];cat=w.cat;q={q:w.q,o:w.o,a:w.a};sel=w.my;ans=true;document.getElementById("qType").textContent=w.cat+" (错题回顾)";document.getElementById("qText").textContent=w.q;document.getElementById("btnSub").disabled=true;document.getElementById("btnSub").textContent="你的:"+["A","B","C","D"][w.my]+" → 正确:"+["A","B","C","D"][w.a];document.getElementById("explain").classList.remove("show");var l=["A","B","C","D"];document.getElementById("opts").innerHTML=w.o.map(function(o,i){var cls=i===w.a?"correct":(i===w.my?"wrong":"");return'<div class="opt '+cls+'" style="pointer-events:none"><span class="letter">'+l[i]+"</span>"+o+"</div>"}).join("")}
+function exportWrong(){if(!wrongList.length){alert("暂无错题");return}var h='<html><head><meta charset="UTF-8"><style>body{font-family:SimSun;font-size:14px;line-height:1.8;padding:20px}li{padding:8px 0;border-bottom:1px solid #eee}</style></head><body><h2>行测错题本</h2><ol>';wrongList.forEach(function(w,i){h+="<li><b>["+w.cat+"]</b> "+w.q+"<br>你的:<b style=\"color:red\">"+["A","B","C","D"][w.my]+"</b> 正确:<b style=\"color:green\">"+["A","B","C","D"][w.a]+"</b></li>"});h+="</ol></body></html>";var b=new Blob([h],{type:"application/msword"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="行测错题本.doc";a.click()}
+next();
+</script></body></html>
