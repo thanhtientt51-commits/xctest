@@ -123,8 +123,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
         <button class="btn btn-ghost" onclick="nextQuestion()">换一题</button>
       </div>
       <div class="explain-box" id="explainBox">
-        <h4>🤖 AI 解析 <span class="ai-label">花生十三风格</span></h4>
-        <div class="xhs-style" id="explainContent"></div>
+        <h4>🥜 花生十三 · 口诀解析</h4>
+        <div class="xhs-style" id="huashengContent" style="border-left:3px solid var(--accent);padding-left:14px;margin-bottom:16px"></div><h4 style="margin-top:16px">🤖 DeepSeek · 深度解析</h4><div class="xhs-style" id="detailContent" style="color:#555"></div>
       </div>
     </div>
   </div>
@@ -303,23 +303,29 @@ function reviewWrong(i) {
 
 async function getExplanation() {
   var box = document.getElementById('explainBox');
-  var content = document.getElementById('explainContent');
+  var hsContent = document.getElementById('huashengContent');
+  var detailContent = document.getElementById('detailContent');
   box.classList.add('show');
-  content.innerHTML = '⏳ AI正在生成花生十三风格解析...';
+  hsContent.innerHTML = '花生十三分析中...';
+  detailContent.innerHTML = 'DeepSeek深度解析中...';
 
-  var prompt = '你是有10年行测教学经验的老师，风格模仿公考名师花生十三——用最精炼的口诀式语言讲题，一针见血，不啰嗦。\n【题型】' + currentCat + '\n【题目】' + currentQ.q + '\n【选项】' + currentQ.o.map(function(o,i){return ['A','B','C','D'][i]+'. '+o}).join(' | ') + '\n【正确答案】' + ['A','B','C','D'][currentQ.a] + '\n【我的答案】' + ['A','B','C','D'][selectedOpt] + '\n请用花生十三的风格简短分析：1.关键词/突破口在哪 2.为什么选正确答案 3.我错在哪（如果对了就说解题思路）4.一句话口诀总结。控制在150字以内。';
+  var l = ['A','B','C','D'];
+  var qInfo = '题型：'+currentCat+'。题目：'+currentQ.q+'。选项：'+currentQ.o.map(function(o,i){return l[i]+'.'+o}).join(' | ')+'。正确答案：'+l[currentQ.a]+'。我的答案：'+l[selectedOpt];
 
   try {
-    var res = await fetch('https://api.deepseek.com/chat/completions', {
-      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer sk-0541b3112cd44ec18041c235d380affc'},
-      body:JSON.stringify({model:'deepseek-chat',messages:[{role:'user',content:prompt}],max_tokens:500,temperature:.7})
-    });
-    var data = await res.json();
-    content.innerHTML = (data.choices[0].message.content || '').replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  } catch(e) { content.innerHTML = '解析生成失败，请重试'; }
+    var API='https://api.deepseek.com/chat/completions';
+    var KEY='sk-0541b3112cd44ec18041c235d380affc';
+    var H={'Content-Type':'application/json','Authorization':'Bearer '+KEY};
+
+    var r1=await fetch(API,{method:'POST',headers:H,body:JSON.stringify({model:'deepseek-chat',messages:[{role:'user',content:'你是花生十三，行测名师。极简口诀式讲题，150字内。'+qInfo}],max_tokens:300,temperature:.5})});
+    var d1=await r1.json();hsContent.innerHTML=(d1.choices[0].message.content||'').replace(/\n/g,'<br>');
+
+    var r2=await fetch(API,{method:'POST',headers:H,body:JSON.stringify({model:'deepseek-chat',messages:[{role:'user',content:'你是行测教研老师。做深度错题解析，300字内。考点分析、正确为什么对、错误为什么错（逐一排除）、解题步骤、通用解法。'+qInfo}],max_tokens:800,temperature:.7})});
+    var d2=await r2.json();detailContent.innerHTML=(d2.choices[0].message.content||'').replace(/\n/g,'<br>');
+  } catch(e) { hsContent.innerHTML='解析失败'; detailContent.innerHTML='请重试'; }
 }
 
-function exportWrong() {
+function exportWrong()function exportWrong() {
   if (!wrongList.length) { alert('暂无错题可导出'); return; }
   var html = '<html><head><meta charset="UTF-8"><style>body{font-family:SimSun;font-size:14px;line-height:1.8;padding:20px}h2{text-align:center}li{padding:8px 0;border-bottom:1px solid #eee}</style></head><body><h2>行测错题本</h2><ol>';
   wrongList.forEach(function(w, i) {
